@@ -383,9 +383,6 @@
 #pragma mark - Chunked
  
 - (UInt64)contentLength {
-    if ( _task.isPrepared ) {
-        NSParameterAssert(_task.response.totalLength != 0);
-    }
     return _task.response.totalLength;
 }
 

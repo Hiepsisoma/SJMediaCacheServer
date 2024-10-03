@@ -13,8 +13,8 @@
 NS_ASSUME_NONNULL_BEGIN
 @protocol HLSAssetTsContent <MCSAssetContent>
 @property (nonatomic, copy, readonly) NSString *name; // `ts name`
-@property (nonatomic, readonly) NSRange rangeInAsset; // #EXT-X-BYTERANGE:1544984@1007868
-@property (nonatomic, readonly) UInt64 totalLength; // `asset(EXT-X-BYTERANGE) or ts` total length
+@property (nonatomic, assign) NSRange rangeInAsset; // #EXT-X-BYTERANGE:1544984@1007868
+@property (nonatomic, assign) UInt64 totalLength; // `asset(EXT-X-BYTERANGE) or ts` total length
 @end
 NS_ASSUME_NONNULL_END
 #endif /* HLSAssetDefines_h */

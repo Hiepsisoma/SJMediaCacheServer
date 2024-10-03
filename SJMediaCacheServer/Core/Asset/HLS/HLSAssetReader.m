@@ -104,7 +104,11 @@
                 if      ( content == nil ) {
                     mReader = [MCSAssetHTTPContentReader.alloc initWithAsset:mAsset request:mRequest networkTaskPriority:_networkTaskPriority dataType:MCSDataTypeHLSTs delegate:self];
                 }
-                else if ( content.length == content.totalLength ) {
+                else if ( content.length == content.totalLength ||  content.totalLength == 0 ) {
+                    if (content.totalLength == 0 ){
+                        content.totalLength = content.length;
+                        content.rangeInAsset = NSMakeRange(0, content.length);
+                    }
                     mReader = [MCSAssetFileContentReader.alloc initWithAsset:mAsset fileContent:content rangeInAsset:content.rangeInAsset delegate:self];
                 }
                 else {
