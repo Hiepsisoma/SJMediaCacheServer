@@ -54,6 +54,8 @@
 
 - (void)downloadTask:(id<MCSDownloadTask>)task didCompleteWithError:(NSError *)error {
     _error = error;
-    dispatch_semaphore_signal(_semaphore);
+    if (_semaphore != nil) {
+        dispatch_semaphore_signal(_semaphore);
+    }
 }
 @end

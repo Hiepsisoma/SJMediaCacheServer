@@ -257,7 +257,10 @@
         NSNumber *key = @(task.taskIdentifier);
         NSError *error = self->mErrorDictionary[key] ?: errorParam;
         id<MCSDownloadTaskDelegate> delegate = self->mDelegateDictionary[key];
-        [delegate downloadTask:task didCompleteWithError:error];
+        if (delegate) {
+            [delegate downloadTask:task didCompleteWithError:error];
+        } else {
+        }
         if ( error != nil && error.code != NSUserCancelledError && self->mErrorCallback != nil ) {
             self->mErrorCallback(task.originalRequest, error);
         }
