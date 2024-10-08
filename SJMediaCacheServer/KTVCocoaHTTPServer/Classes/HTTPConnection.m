@@ -23,14 +23,14 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 // Define chunk size used to read in data for responses
 // This is how much data will be read from disk into RAM at a time
 #if TARGET_OS_IPHONE
-  #define READ_CHUNKSIZE  (1024 * 256)
+  #define READ_CHUNKSIZE  (1024 * 64)
 #else
   #define READ_CHUNKSIZE  (1024 * 512)
 #endif
 
 // Define chunk size used to read in POST upload data
 #if TARGET_OS_IPHONE
-  #define POST_CHUNKSIZE  (1024 * 256)
+  #define POST_CHUNKSIZE  (1024 * 64)
 #else
   #define POST_CHUNKSIZE  (1024 * 512)
 #endif
