@@ -13,6 +13,7 @@
 #import "MCSQueue.h"
 #import "MCSLogger.h"
 #import "NSURLRequest+MCS.h"
+#import "MCSAssetCacheManager.h"
 
 @interface NSURLSessionTask (MCSDownloadExtended)<MCSDownloadTask>
 
@@ -53,7 +54,7 @@
         mErrorDictionary = [NSMutableDictionary dictionary];
         mDelegateDictionary = [NSMutableDictionary dictionary];
         mSessionDelegateQueue = [[NSOperationQueue alloc] init];
-        mSessionDelegateQueue.qualityOfService = NSQualityOfServiceUserInteractive;
+        mSessionDelegateQueue.qualityOfService = NSQualityOfServiceBackground;
         mSessionDelegateQueue.maxConcurrentOperationCount = 1;
         mSessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
         mSessionConfiguration.timeoutIntervalForRequest = mTimeoutInterval;
@@ -252,6 +253,13 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)errorParam {
     MCSDownloaderDebugLog(@"%@: <%p>.didCompleteWithError { task: %lu, error: %@ };\n", NSStringFromClass(self.class), self, (unsigned long)task.taskIdentifier, errorParam);
+    if (errorParam != nil && [errorParam.domain isEqualToString:NSURLErrorDomain]) {
+        NSInteger errorCode = errorParam.code;
+        if (errorCode == -999) {
+            NSString *failingURLString = errorParam.userInfo[NSErrorFailingURLStringKey];
+            NSLog(@"HungPT Error code: %ld == %@", (long)errorCode, failingURLString);
+        }
+    }
     mcs_queue_async(^{
         if ( self->mTaskCount > 0 ) self->mTaskCount -= 1;
         NSNumber *key = @(task.taskIdentifier);
