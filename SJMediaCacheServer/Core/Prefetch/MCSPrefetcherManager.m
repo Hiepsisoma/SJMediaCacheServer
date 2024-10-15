@@ -138,26 +138,35 @@
 #pragma mark -
 
 - (void)_completeOperationIfExecuting {
-    if ( !_isExecuting || _isFinished ) return;
-    
-    [self willChangeValueForKey:@"isFinished"];
-    [self willChangeValueForKey:@"isExecuting"];
+    dispatch_queue_attr_t qosAttribute = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_BACKGROUND, 0);
+    dispatch_queue_t backgroundQueue = dispatch_queue_create("completeOperationIfExecuting.backgroundQueue", qosAttribute);
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(backgroundQueue, ^{
+        typeof(self) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        if ( !strongSelf.executing || strongSelf.isFinished ) return;
+        
+        [strongSelf willChangeValueForKey:@"isFinished"];
+        [strongSelf willChangeValueForKey:@"isExecuting"];
 
-    BOOL isChanged = NO;
-    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-    if ( !_isFinished ) {
-        [self->_prefetcher close];
-        self->_prefetcher = nil;
-        _isExecuting = NO;
-        _isFinished = YES;
-        isChanged = YES;
-    }
-    dispatch_semaphore_signal(_semaphore);
-    
-    if ( isChanged ) {
-        [self didChangeValueForKey:@"isExecuting"];
-        [self didChangeValueForKey:@"isFinished"];
-    }
+        BOOL isChanged = NO;
+        dispatch_semaphore_wait(strongSelf->_semaphore, DISPATCH_TIME_FOREVER);
+        if ( !strongSelf.isFinished ) {
+            [strongSelf->_prefetcher close];
+            strongSelf->_prefetcher = nil;
+            strongSelf->_isExecuting = NO;
+            strongSelf->_isFinished = YES;
+            isChanged = YES;
+        }
+        dispatch_semaphore_signal(strongSelf->_semaphore);
+        
+        if ( isChanged ) {
+            [strongSelf didChangeValueForKey:@"isExecuting"];
+            [strongSelf didChangeValueForKey:@"isFinished"];
+        }
+    });
 }
 
 #pragma mark -
