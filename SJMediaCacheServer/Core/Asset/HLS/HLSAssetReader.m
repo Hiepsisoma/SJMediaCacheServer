@@ -101,16 +101,20 @@
                 break;
             case MCSDataTypeHLSTs: {
                 id<HLSAssetTsContent> content = [mAsset TsContentReadwriteForRequest:mRequest];
-                if      ( content == nil || content.totalLength == 0) {
+                if      ( content == nil ) {
                     NSLog(@"HungPT HLSAssetReader prepare content == nil");
                     mReader = [MCSAssetHTTPContentReader.alloc initWithAsset:mAsset request:mRequest networkTaskPriority:_networkTaskPriority dataType:MCSDataTypeHLSTs delegate:self];
                 }
-                else if ( content.length == content.totalLength) {
+                else if ( content.length == content.totalLength || content.length > (1024 * 1024) /2) {
+                    if (content.totalLength == 0 ){
+                        content.totalLength = content.length;
+                        content.rangeInAsset = NSMakeRange(0, content.length);
+                    }
                     NSLog(@"HungPT HLSAssetReader prepare content.length == content.totalLength content = %@ content.rangeInAsset.location = %lu content.rangeInAsset.location = %lu", content, (unsigned long)content.rangeInAsset.location, (unsigned long)content.rangeInAsset.length);
                     mReader = [MCSAssetFileContentReader.alloc initWithAsset:mAsset fileContent:content rangeInAsset:content.rangeInAsset delegate:self];
                 }
                 else {
-                    NSLog(@"HungPT HLSAssetReader prepare =========== content = %@ content.rangeInAsset.location = %lu content.rangeInAsset.location = %lu totalLength =  %lu", content, (unsigned long)content.rangeInAsset.location, (unsigned long)content.rangeInAsset.length, (unsigned long)content.totalLength);
+                    NSLog(@"HungPT HLSAssetReader prepare =========== content = %@ content.rangeInAsset.location = %lu content.rangeInAsset.length = %lu totalLength =  %lu", content, (unsigned long)content.rangeInAsset.location, (unsigned long)content.rangeInAsset.length, (unsigned long)content.totalLength);
                     mReader = [MCSAssetHTTPContentReader.alloc initWithAsset:mAsset request:mRequest rangeInAsset:content.rangeInAsset contentReadwrite:content networkTaskPriority:_networkTaskPriority dataType:MCSDataTypeHLSTs delegate:self];
                 }
             }
